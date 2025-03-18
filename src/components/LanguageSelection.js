@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './LanguageSelection.css';
+import '../style/LanguageSelection.css';
 
 function LanguageSelection({ onSelectLanguage }) {
   const [selectedLanguage, setSelectedLanguage] = useState('ru');

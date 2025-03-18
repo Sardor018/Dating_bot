@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './ProfileSetup.css';
+import '../style/ProfileSetup.css';
 
 function PhotoUpload({ user, onComplete }) {
   const [photos, setPhotos] = useState([]);
