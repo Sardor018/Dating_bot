@@ -6,7 +6,9 @@ import './App.css';
 import Candidates from './components/Candidates';
 import Chat from './components/Chat';
 import Profile from './components/Profile';
+import LanguageSelection from './components/LanguageSelection';
 import ProfileSetup from './components/ProfileSetup';
+import PhotoUpload from './components/PhotoUpload';
 import { FaRegUserCircle } from 'react-icons/fa';
 import { IoChatbubbleEllipsesOutline } from 'react-icons/io5';
 import { MdFavoriteBorder } from 'react-icons/md';
@@ -19,9 +21,9 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [debugMessage, setDebugMessage] = useState('Ожидание Telegram Web App...');
+  const [selectedLanguage, setSelectedLanguage] = useState('ru');
 
   const verifyTelegramInitData = async () => {
-    // Ждём 5 секунд для загрузки SDK
     await new Promise((resolve) => setTimeout(() => resolve(), 5000));
     
     setDebugMessage(`Проверка window.Telegram... typeof window.Telegram: ${typeof window.Telegram}, URL: ${window.location.href}`);
@@ -46,7 +48,22 @@ function App() {
     }
 
     setDebugMessage(`initData получено: ${initData}`);
+    const params = new URLSearchParams(initData);
+    const hash = params.get('hash');
+    params.delete('hash');
 
+    const dataCheckString = [...params.entries()]
+      .map(([key, value]) => `${key}=${value}`)
+      .sort()
+      .join('\n');
+
+    const secretKey = CryptoJS.HmacSHA256(BOT_TOKEN, 'WebAppData');
+    const computedHash = CryptoJS.HmacSHA256(dataCheckString, secretKey).toString(CryptoJS.enc.Hex);
+
+    if (computedHash !== hash) {
+      setDebugMessage(`Ошибка проверки подписи. Ожидаемый hash: ${computedHash}, полученный: ${hash}`);
+      return null;
+    }
 
     const webAppUser = telegram.initDataUnsafe.user;
     if (!webAppUser?.id) {
@@ -126,15 +143,19 @@ function App() {
     <div>
       <h1>Dating Mini Web</h1>
       <Routes>
+        <Route path="/language" element={<LanguageSelection onSelectLanguage={(lang) => setSelectedLanguage(lang)} />} />
+        <Route path="/profile" element={<ProfileSetup user={user} setUser={setUser} selectedLanguage={selectedLanguage} />} />
+        <Route path="/photos" element={<PhotoUpload user={user} onComplete={() => setUser({ ...user, isProfileComplete: true })} />} />
         <Route
           path="/"
           element={
             user.isProfileComplete ? (
               <Candidates setSelectedMatch={setSelectedMatch} currentUserChatId={user.chat_id} />
             ) : (
-              <ProfileSetup user={user} setUser={(updatedUser) => {
-                setUser(updatedUser);
-                localStorage.setItem('user', JSON.stringify(updatedUser));
+              <LanguageSelection onSelectLanguage={(lang) => {
+                setSelectedLanguage(lang);
+                // Navigate to profile setup after language selection
+                window.location.href = '/profile';
               }} />
             )
           }
@@ -142,7 +163,7 @@ function App() {
         {user.isProfileComplete && (
           <>
             <Route path="/chat" element={<Chat match={selectedMatch} />} />
-            <Route path="/profile" element={<Profile chatId={user.chat_id} />} />
+            <Route path="/profile-view" element={<Profile chatId={user.chat_id} />} />
           </>
         )}
       </Routes>
@@ -154,7 +175,7 @@ function App() {
           <NavLink to="/chat" className={({ isActive }) => (isActive ? 'active-link' : '')}>
             <IoChatbubbleEllipsesOutline size={24} />
           </NavLink>
-          <NavLink to="/profile" className={({ isActive }) => (isActive ? 'active-link' : '')}>
+          <NavLink to="/profile-view" className={({ isActive }) => (isActive ? 'active-link' : '')}>
             <FaRegUserCircle size={24} />
           </NavLink>
         </nav>
