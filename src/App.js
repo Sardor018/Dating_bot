@@ -21,7 +21,8 @@ function App() {
   const [debugMessage, setDebugMessage] = useState('Ожидание Telegram Web App...');
 
   const verifyTelegramInitData = async () => {
-    await new Promise((resolve) => setTimeout(() => resolve(), 3000));
+    // Ждём 5 секунд для загрузки SDK
+    await new Promise((resolve) => setTimeout(() => resolve(), 5000));
     
     setDebugMessage(`Проверка window.Telegram... typeof window.Telegram: ${typeof window.Telegram}, URL: ${window.location.href}`);
     
@@ -68,7 +69,7 @@ function App() {
       return null;
     }
 
-    const chatId = webAppUser.id.toString(); // Убедимся, что chatId — строка
+    const chatId = webAppUser.id.toString();
     setDebugMessage(`Успешная проверка. Telegram chat_id: ${chatId}`);
     return chatId;
   };
@@ -78,7 +79,6 @@ function App() {
       const savedUser = localStorage.getItem('user');
       if (savedUser) {
         const parsedUser = JSON.parse(savedUser);
-        // Проверяем, что chat_id — строка
         if (typeof parsedUser.chat_id !== 'string') {
           setDebugMessage('Ошибка: chat_id в localStorage не строка. Очищаем localStorage.');
           localStorage.removeItem('user');
@@ -102,13 +102,13 @@ function App() {
           headers: { 'ngrok-skip-browser-warning': 'true' },
         });
         const userData = { chat_id: chatId, isProfileComplete: response.data.is_profile_complete };
-        localStorage.setItem('user', JSON.stringify(userData)); // Сохраняем как строку
+        localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
         setDebugMessage(prev => `${prev} | Ответ бэкенда: isProfileComplete = ${response.data.is_profile_complete}`);
       } catch (error) {
         setDebugMessage(prev => `${prev} | Ошибка: ${error.message}`);
         const userData = { chat_id: chatId, isProfileComplete: false };
-        localStorage.setItem('user', JSON.stringify(userData)); // Сохраняем как строку
+        localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
       } finally {
         setLoading(false);
