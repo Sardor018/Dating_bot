@@ -1,15 +1,34 @@
 /* App.module.css */
 
+/* Общие стили для всего приложения (аналог body) */
+:root {
+  background-color: #111111; /* Тёмный фон для контраста */
+  color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Контейнер приложения */
 .App {
   max-width: 600px;
   margin: 0 auto;
   padding: 20px;
 }
 
+/* Заголовки */
 h1 {
   text-align: center;
 }
 
+h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #ef06cc; /* Акцентный цвет для заголовков */
+}
+
+/* Навигационная панель (сохранены важные стили) */
 nav {
   text-align: center;
   display: flex;
@@ -50,6 +69,7 @@ nav a:hover {
   color: #ef06cc;
 }
 
+/* Стили для компонента Candidates (сохранены важные стили) */
 .candidates {
   text-align: center;
 }
@@ -61,19 +81,30 @@ nav a:hover {
   margin-bottom: 20px;
 }
 
+/* Кнопки в Candidates */
 .buttons {
   display: flex;
   justify-content: center;
   gap: 20px;
 }
 
+/* Общие стили для кнопок (адаптированы из styles.css) */
 button {
-  padding: 10px 20px;
+  padding: 12px;
+  background-color: #ef06cc; /* Акцентный цвет для кнопок */
+  color: #ffffff;
   border: none;
   border-radius: 5px;
+  font-size: 16px;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
+button:hover {
+  background-color: #c305a8; /* Более тёмный акцент при наведении */
+}
+
+/* Специфические кнопки в Candidates (сохранены важные стили) */
 button:first-child {
   background-color: #ff4444;
   color: white;
@@ -84,6 +115,7 @@ button:last-child {
   color: white;
 }
 
+/* Стили для чата (сохранены важные стили) */
 .chat-container {
   border: 1px solid #ccc;
   height: 400px;
@@ -117,16 +149,19 @@ button:last-child {
   gap: 10px;
 }
 
+/* Стили для Profile (обновлены с учётом styles.css) */
 .profile {
   max-width: 400px;
   margin: 20px auto;
   padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 10px;
+  background-color: #f5f5f5; /* Светлый фон для контента */
+  color: #000000; /* Текст на светлом фоне */
 }
 
 .profile h2 {
   text-align: center;
+  color: #ef06cc; /* Акцентный цвет */
 }
 
 .profile form div {
@@ -136,25 +171,139 @@ button:last-child {
 .profile label {
   display: block;
   margin-bottom: 5px;
+  font-size: 16px;
+  color: #333333; /* Тёмный текст для меток */
 }
 
 .profile input,
+.profile select,
 .profile textarea {
   width: 100%;
-  padding: 8px;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ef06cc; /* Акцентная граница */
+  border-radius: 5px;
+  background-color: #ffffff; /* Белый фон для полей */
+  color: #000000;
   box-sizing: border-box;
+  font-size: 16px;
 }
 
 .profile textarea {
   height: 100px;
+  resize: none;
 }
 
 .profile button {
   width: 100%;
-  padding: 10px;
-  background-color: #007bff;
-  color: white;
+  padding: 12px;
+  background-color: #ef06cc; /* Акцентный цвет */
+  color: #ffffff;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+}
+
+.profile button:hover {
+  background-color: #c305a8;
+}
+
+/* Стили для LanguageSelection */
+.language-selection {
+  text-align: center;
+  background-color: #111111; /* Тёмный фон, как на скриншоте */
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 400px;
+  margin: 20px auto;
+}
+
+.language-selection select {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  background-color: #ffffff;
+  color: #000000;
+  border: 1px solid #ef06cc;
+  margin-bottom: 20px;
+  width: 200px;
+  appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="%23ef06cc"><polygon points="0,0 12,0 6,12"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+
+.language-selection button {
+  width: 150px;
+  background-color: #ef06cc;
+  color: #ffffff;
+}
+
+.language-selection button:hover {
+  background-color: #c305a8;
+}
+
+/* Стили для PhotoUpload */
+.photo-upload {
+  text-align: center;
+  background-color: #111111; /* Тёмный фон, как на скриншоте */
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 400px;
+  margin: 20px auto;
+}
+
+.photo-upload .grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.photo-upload .grid div {
+  height: 100px;
+  background-color: #222222;
+  border: 2px dashed #ef06cc; /* Акцентная пунктирная граница */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.photo-upload input[type="file"] {
+  display: none;
+}
+
+.photo-upload label {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #ef06cc;
+  color: #ffffff;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s;
+}
+
+.photo-upload label:hover {
+  background-color: #c305a8;
+}
+
+.photo-upload button {
+  width: 150px;
+  margin-top: 20px;
+  background-color: #ef06cc;
+  color: #ffffff;
+}
+
+.photo-upload button:hover {
+  background-color: #c305a8;
+}
+
+.photo-upload p {
+  color: #ffffff; /* Белый текст для инструкций на тёмном фоне */
+  font-size: 14px;
+  margin-bottom: 15px;
 }

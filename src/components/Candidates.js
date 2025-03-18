@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://localhost:8000';
-const TELEGRAM_BOT_TOKEN = process.env.REACT_APP_TELEGRAM_TOKEN || '7917281669:AAHdu-_fJ2fmw2GckkvbEbmUCYwx8IXmqYg';
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+const TELEGRAM_BOT_TOKEN = process.env.REACT_APP_TELEGRAM_TOKEN;
 
 function Candidates({ setSelectedMatch, currentUserChatId }) {
   const [candidates, setCandidates] = useState([]);

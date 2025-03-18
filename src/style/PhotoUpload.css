@@ -1,0 +1,60 @@
+/* PhotoUpload.css */
+.photo-upload {
+    text-align: center;
+    background-color: #111111; /* Тёмный фон, как на скриншоте */
+    padding: 20px;
+    border-radius: 10px;
+  }
+  
+  .photo-upload .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 20px 0;
+  }
+  
+  .photo-upload .grid div {
+    height: 100px;
+    background-color: #222222;
+    border: 2px dashed #ef06cc; /* Акцентная пунктирная граница */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    border-radius: 5px;
+    font-size: 14px;
+  }
+  
+  .photo-upload input[type="file"] {
+    display: none;
+  }
+  
+  .photo-upload label {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #ef06cc;
+    color: #ffffff;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+  }
+  
+  .photo-upload label:hover {
+    background-color: #c305a8;
+  }
+  
+  .photo-upload button {
+    width: 150px;
+    margin-top: 20px;
+    background-color: #ef06cc;
+    color: #ffffff;
+  }
+  
+  .photo-upload button:hover {
+    background-color: #c305a8;
+  }
+  
+  .photo-upload p {
+    color: #ffffff; /* Белый текст для инструкций на тёмном фоне */
+  }

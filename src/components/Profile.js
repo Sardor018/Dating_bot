@@ -5,7 +5,7 @@ import '../style/Profile.css';
 
 const Profile = ({ chatId }) => {
   const [profile, setProfile] = useState(null);
-  const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+  const apiBaseUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchProfile = async () => {
