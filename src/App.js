@@ -23,7 +23,7 @@ function App() {
   const verifyTelegramInitData = () => {
     setDebugMessage('Проверка Telegram Web App...');
     if (!window.Telegram) {
-      setDebugMessage('window.Telegram отсутствует. Откройте через Telegram.');
+      setDebugMessage(`window.Telegram отсутствует. Откройте через Telegram. ${window.Telegram}`);
       return null;
     }
     if (!window.Telegram.WebApp) {
