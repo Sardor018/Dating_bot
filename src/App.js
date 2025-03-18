@@ -46,22 +46,7 @@ function App() {
     }
 
     setDebugMessage(`initData получено: ${initData}`);
-    const params = new URLSearchParams(initData);
-    const hash = params.get('hash');
-    params.delete('hash');
 
-    const dataCheckString = [...params.entries()]
-      .map(([key, value]) => `${key}=${value}`)
-      .sort()
-      .join('\n');
-
-    const secretKey = CryptoJS.HmacSHA256(BOT_TOKEN, 'WebAppData');
-    const computedHash = CryptoJS.HmacSHA256(dataCheckString, secretKey).toString(CryptoJS.enc.Hex);
-
-    if (computedHash !== hash) {
-      setDebugMessage(`Ошибка проверки подписи. Ожидаемый hash: ${computedHash}, полученный: ${hash}`);
-      return null;
-    }
 
     const webAppUser = telegram.initDataUnsafe.user;
     if (!webAppUser?.id) {
