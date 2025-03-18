@@ -19,7 +19,7 @@ const Profile = ({ chatId }) => {
     fetchProfile();
   }, [chatId, apiBaseUrl]);
 
-  if (!profile) return <div>Загрузка профиля...</div>;
+  if (!profile) return <div className="loader">Загрузка профиля...</div>;
   return (
     <div className="profile-container">
       {/* Заголовок с именем */}

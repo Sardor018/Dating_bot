@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Route, Routes, NavLink, useSearchParams } from 'react-router-dom';
+import { Route, Routes, NavLink } from 'react-router-dom';
 import axios from 'axios';
+import CryptoJS from 'crypto-js'; // Убедитесь, что установлено: npm install crypto-js
 import './App.css';
 import Candidates from './components/Candidates';
 import Chat from './components/Chat';
@@ -11,78 +12,100 @@ import { IoChatbubbleEllipsesOutline } from 'react-icons/io5';
 import { MdFavoriteBorder } from 'react-icons/md';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const BOT_TOKEN = process.env.REACT_APP_BOT_TOKEN; // Токен бота из .env
 
 function App() {
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [debugMessage, setDebugMessage] = useState(''); // Один общий лог
-  const [searchParams] = useSearchParams();
+  const [debugMessage, setDebugMessage] = useState('');
 
-  const getTelegramUserId = () => {
-    if (window.Telegram?.WebApp) {
-      const telegram = window.Telegram.WebApp;
-      telegram.ready();
-      const user = telegram.initDataUnsafe?.user;
-      if (user?.id) {
-        setDebugMessage(`Telegram user ID: ${user.id}`);
-        return user.id.toString();
-      } else {
-        setDebugMessage('Данные пользователя недоступны в Telegram Web App');
-        return null;
-      }
-    } else {
+  const verifyTelegramInitData = () => {
+    if (!window.Telegram?.WebApp) {
       setDebugMessage('Telegram Web App не инициализирован');
       return null;
     }
+
+    const telegram = window.Telegram.WebApp;
+    telegram.ready();
+    const initData = telegram.initData;
+
+    if (!initData) {
+      setDebugMessage('initData отсутствует в Telegram Web App');
+      return null;
+    }
+
+    // Парсим initData
+    const params = new URLSearchParams(initData);
+    const hash = params.get('hash');
+    params.delete('hash');
+
+    // Формируем строку для проверки
+    const dataCheckString = [...params.entries()]
+      .map(([key, value]) => `${key}=${value}`)
+      .sort()
+      .join('\n');
+
+    // Проверяем подпись
+    const secretKey = CryptoJS.HmacSHA256(BOT_TOKEN, 'WebAppData');
+    const computedHash = CryptoJS.HmacSHA256(dataCheckString, secretKey).toString(CryptoJS.enc.Hex);
+
+    if (computedHash !== hash) {
+      setDebugMessage('Ошибка проверки подписи initData');
+      return null;
+    }
+
+    // Извлекаем только chat_id из initDataUnsafe.user
+    const webAppUser = telegram.initDataUnsafe.user;
+    if (!webAppUser?.id) {
+      setDebugMessage('ID пользователя не найден в initData');
+      return null;
+    }
+
+    const chatId = webAppUser.id.toString();
+    setDebugMessage(`Успешная проверка. Telegram chat_id: ${chatId}`);
+    return chatId;
   };
 
   useEffect(() => {
     const initializeUser = async () => {
-      let chatId;
-
-      const telegramUserId = getTelegramUserId();
-      if (telegramUserId) {
-        chatId = telegramUserId;
-      } else {
-        const urlChatId = searchParams.get('chat_id');
-        if (urlChatId) {
-          setDebugMessage(`Chat ID from URL: ${urlChatId}`);
-          chatId = urlChatId;
-        } else {
-          const savedChatId = localStorage.getItem('chat_id');
-          if (savedChatId) {
-            setDebugMessage(`Chat ID from localStorage: ${savedChatId}`);
-            chatId = savedChatId;
-          }
-        }
-      }
-
-      if (!chatId) {
-        setDebugMessage('Не удалось определить chat_id');
+      // Проверяем localStorage на наличие сохраненных данных
+      const savedUser = localStorage.getItem('user');
+      if (savedUser) {
+        const parsedUser = JSON.parse(savedUser);
+        setUser(parsedUser);
+        setDebugMessage(`Загружено из localStorage: chat_id = ${parsedUser.chat_id}, isProfileComplete = ${parsedUser.isProfileComplete}`);
         setLoading(false);
         return;
       }
 
-      localStorage.setItem('chat_id', chatId);
-      setDebugMessage(`Используемый chat_id: ${chatId}`);
+      // Если данных в localStorage нет, проверяем initData
+      const chatId = verifyTelegramInitData();
+      if (!chatId) {
+        setLoading(false);
+        return;
+      }
 
+      // Сохраняем chat_id в localStorage и делаем запрос к бэкенду
       try {
         const response = await axios.get(`${API_BASE_URL}/check_user?chat_id=${chatId}`, {
           headers: { 'ngrok-skip-browser-warning': 'true' },
         });
-        setDebugMessage(`Ответ бэкенда: isProfileComplete = ${response.data.is_profile_complete}`);
-        setUser({ chat_id: chatId, isProfileComplete: response.data.is_profile_complete });
+        const userData = { chat_id: chatId, isProfileComplete: response.data.is_profile_complete };
+        localStorage.setItem('user', JSON.stringify(userData));
+        setUser(userData);
+        setDebugMessage(prev => `${prev} | Ответ бэкенда: isProfileComplete = ${response.data.is_profile_complete}`);
       } catch (error) {
-        setDebugMessage(`Ошибка: ${error.message}`);
+        setDebugMessage(prev => `${prev} | Ошибка: ${error.message}`);
         setUser({ chat_id: chatId, isProfileComplete: false });
+        localStorage.setItem('user', JSON.stringify({ chat_id: chatId, isProfileComplete: false }));
       } finally {
         setLoading(false);
       }
     };
 
     initializeUser();
-  }, [searchParams]);
+  }, []);
 
   if (loading) {
     return (
@@ -113,7 +136,10 @@ function App() {
             user.isProfileComplete ? (
               <Candidates setSelectedMatch={setSelectedMatch} currentUserChatId={user.chat_id} />
             ) : (
-              <ProfileSetup user={user} setUser={setUser} />
+              <ProfileSetup user={user} setUser={(updatedUser) => {
+                setUser(updatedUser);
+                localStorage.setItem('user', JSON.stringify(updatedUser));
+              }} />
             )
           }
         />
