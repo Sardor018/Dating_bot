@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Route, Routes, NavLink } from 'react-router-dom';
 import axios from 'axios';
-import CryptoJS from 'crypto-js'; // Убедитесь, что установлено: npm install crypto-js
+import CryptoJS from 'crypto-js';
 import './App.css';
 import Candidates from './components/Candidates';
 import Chat from './components/Chat';
@@ -12,7 +12,7 @@ import { IoChatbubbleEllipsesOutline } from 'react-icons/io5';
 import { MdFavoriteBorder } from 'react-icons/md';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-const BOT_TOKEN = process.env.REACT_APP_BOT_TOKEN; // Токен бота из .env
+const BOT_TOKEN = process.env.REACT_APP_BOT_TOKEN;
 
 function App() {
   const [selectedMatch, setSelectedMatch] = useState(null);
@@ -21,41 +21,44 @@ function App() {
   const [debugMessage, setDebugMessage] = useState('');
 
   const verifyTelegramInitData = () => {
-    if (!window.Telegram?.WebApp) {
-      setDebugMessage('Telegram Web App не инициализирован');
+    setDebugMessage('Проверка Telegram Web App...');
+    if (!window.Telegram) {
+      setDebugMessage('window.Telegram отсутствует. Откройте через Telegram.');
+      return null;
+    }
+    if (!window.Telegram.WebApp) {
+      setDebugMessage('window.Telegram.WebApp отсутствует. Telegram SDK не загрузился.');
       return null;
     }
 
     const telegram = window.Telegram.WebApp;
+    setDebugMessage('Telegram Web App найден. Вызываем ready()...');
     telegram.ready();
-    const initData = telegram.initData;
 
+    const initData = telegram.initData;
     if (!initData) {
-      setDebugMessage('initData отсутствует в Telegram Web App');
+      setDebugMessage('initData пустое. Проверьте запуск через Telegram.');
       return null;
     }
 
-    // Парсим initData
+    setDebugMessage(`initData получено: ${initData}`);
     const params = new URLSearchParams(initData);
     const hash = params.get('hash');
     params.delete('hash');
 
-    // Формируем строку для проверки
     const dataCheckString = [...params.entries()]
       .map(([key, value]) => `${key}=${value}`)
       .sort()
       .join('\n');
 
-    // Проверяем подпись
     const secretKey = CryptoJS.HmacSHA256(BOT_TOKEN, 'WebAppData');
     const computedHash = CryptoJS.HmacSHA256(dataCheckString, secretKey).toString(CryptoJS.enc.Hex);
 
     if (computedHash !== hash) {
-      setDebugMessage('Ошибка проверки подписи initData');
+      setDebugMessage(`Ошибка проверки подписи. Ожидаемый hash: ${computedHash}, полученный: ${hash}`);
       return null;
     }
 
-    // Извлекаем только chat_id из initDataUnsafe.user
     const webAppUser = telegram.initDataUnsafe.user;
     if (!webAppUser?.id) {
       setDebugMessage('ID пользователя не найден в initData');
@@ -69,7 +72,7 @@ function App() {
 
   useEffect(() => {
     const initializeUser = async () => {
-      // Проверяем localStorage на наличие сохраненных данных
+      setDebugMessage('Запуск инициализации...');
       const savedUser = localStorage.getItem('user');
       if (savedUser) {
         const parsedUser = JSON.parse(savedUser);
@@ -79,14 +82,12 @@ function App() {
         return;
       }
 
-      // Если данных в localStorage нет, проверяем initData
       const chatId = verifyTelegramInitData();
       if (!chatId) {
         setLoading(false);
         return;
       }
 
-      // Сохраняем chat_id в localStorage и делаем запрос к бэкенду
       try {
         const response = await axios.get(`${API_BASE_URL}/check_user?chat_id=${chatId}`, {
           headers: { 'ngrok-skip-browser-warning': 'true' },
