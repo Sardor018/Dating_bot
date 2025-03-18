@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Route, Routes, NavLink, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import CryptoJS from 'crypto-js';
 import './App.css';
 import Candidates from './components/Candidates';
 import Chat from './components/Chat';
@@ -13,7 +12,7 @@ import { FaRegUserCircle } from 'react-icons/fa';
 import { IoChatbubbleEllipsesOutline } from 'react-icons/io5';
 import { MdFavoriteBorder } from 'react-icons/md';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 const BOT_TOKEN = process.env.REACT_APP_BOT_TOKEN;
 
 function App() {
