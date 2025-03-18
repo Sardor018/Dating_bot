@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Route, Routes, NavLink, useNavigate } from 'react-router-dom';
+import { Route, Routes, NavLink } from 'react-router-dom';
 import axios from 'axios';
+import CryptoJS from 'crypto-js';
 import './App.css';
 import Candidates from './components/Candidates';
 import Chat from './components/Chat';
 import Profile from './components/Profile';
-import LanguageSelection from './components/LanguageSelection';
 import ProfileSetup from './components/ProfileSetup';
-import PhotoUpload from './components/PhotoUpload';
 import { FaRegUserCircle } from 'react-icons/fa';
 import { IoChatbubbleEllipsesOutline } from 'react-icons/io5';
 import { MdFavoriteBorder } from 'react-icons/md';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL;
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 const BOT_TOKEN = process.env.REACT_APP_BOT_TOKEN;
 
 function App() {
@@ -20,10 +19,9 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [debugMessage, setDebugMessage] = useState('Ожидание Telegram Web App...');
-  const [selectedLanguage, setSelectedLanguage] = useState('ru');
-  const navigate = useNavigate(); // Добавляем useNavigate для программного перенаправления
 
   const verifyTelegramInitData = async () => {
+    // Ждём 5 секунд для загрузки SDK
     await new Promise((resolve) => setTimeout(() => resolve(), 5000));
     
     setDebugMessage(`Проверка window.Telegram... typeof window.Telegram: ${typeof window.Telegram}, URL: ${window.location.href}`);
@@ -48,6 +46,7 @@ function App() {
     }
 
     setDebugMessage(`initData получено: ${initData}`);
+
 
     const webAppUser = telegram.initDataUnsafe.user;
     if (!webAppUser?.id) {
@@ -91,24 +90,18 @@ function App() {
         localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
         setDebugMessage(prev => `${prev} | Ответ бэкенда: isProfileComplete = ${response.data.is_profile_complete}`);
-
-        // Перенаправление на /language, если профиль не заполнен
-        if (!response.data.is_profile_complete) {
-          navigate('/language');
-        }
       } catch (error) {
         setDebugMessage(prev => `${prev} | Ошибка: ${error.message}`);
         const userData = { chat_id: chatId, isProfileComplete: false };
         localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
-        navigate('/language'); // Перенаправление при ошибке
       } finally {
         setLoading(false);
       }
     };
 
     initializeUser();
-  }, [navigate]);
+  }, []);
 
   if (loading) {
     return (
@@ -133,18 +126,15 @@ function App() {
     <div>
       <h1>Dating Mini Web</h1>
       <Routes>
-        <Route path="/language" element={<LanguageSelection onSelectLanguage={(lang) => setSelectedLanguage(lang)} />} />
-        <Route path="/profile" element={<ProfileSetup user={user} setUser={setUser} selectedLanguage={selectedLanguage} />} />
-        <Route path="/photos" element={<PhotoUpload user={user} onComplete={() => setUser({ ...user, isProfileComplete: true })} />} />
         <Route
           path="/"
           element={
             user.isProfileComplete ? (
               <Candidates setSelectedMatch={setSelectedMatch} currentUserChatId={user.chat_id} />
             ) : (
-              <LanguageSelection onSelectLanguage={(lang) => {
-                setSelectedLanguage(lang);
-                navigate('/profile'); // Используем navigate вместо window.location.href
+              <ProfileSetup user={user} setUser={(updatedUser) => {
+                setUser(updatedUser);
+                localStorage.setItem('user', JSON.stringify(updatedUser));
               }} />
             )
           }
@@ -152,7 +142,7 @@ function App() {
         {user.isProfileComplete && (
           <>
             <Route path="/chat" element={<Chat match={selectedMatch} />} />
-            <Route path="/profile-view" element={<Profile chatId={user.chat_id} />} />
+            <Route path="/profile" element={<Profile chatId={user.chat_id} />} />
           </>
         )}
       </Routes>
@@ -164,7 +154,7 @@ function App() {
           <NavLink to="/chat" className={({ isActive }) => (isActive ? 'active-link' : '')}>
             <IoChatbubbleEllipsesOutline size={24} />
           </NavLink>
-          <NavLink to="/profile-view" className={({ isActive }) => (isActive ? 'active-link' : '')}>
+          <NavLink to="/profile" className={({ isActive }) => (isActive ? 'active-link' : '')}>
             <FaRegUserCircle size={24} />
           </NavLink>
         </nav>
