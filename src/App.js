@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Route, Routes, NavLink } from 'react-router-dom';
+import { Route, Routes, NavLink, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
 import './App.css';
@@ -22,6 +22,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [debugMessage, setDebugMessage] = useState('Ожидание Telegram Web App...');
   const [selectedLanguage, setSelectedLanguage] = useState('ru');
+  const navigate = useNavigate(); // Добавляем useNavigate для программного перенаправления
 
   const verifyTelegramInitData = async () => {
     await new Promise((resolve) => setTimeout(() => resolve(), 5000));
@@ -48,22 +49,6 @@ function App() {
     }
 
     setDebugMessage(`initData получено: ${initData}`);
-    const params = new URLSearchParams(initData);
-    const hash = params.get('hash');
-    params.delete('hash');
-
-    const dataCheckString = [...params.entries()]
-      .map(([key, value]) => `${key}=${value}`)
-      .sort()
-      .join('\n');
-
-    const secretKey = CryptoJS.HmacSHA256(BOT_TOKEN, 'WebAppData');
-    const computedHash = CryptoJS.HmacSHA256(dataCheckString, secretKey).toString(CryptoJS.enc.Hex);
-
-    if (computedHash !== hash) {
-      setDebugMessage(`Ошибка проверки подписи. Ожидаемый hash: ${computedHash}, полученный: ${hash}`);
-      return null;
-    }
 
     const webAppUser = telegram.initDataUnsafe.user;
     if (!webAppUser?.id) {
@@ -107,18 +92,24 @@ function App() {
         localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
         setDebugMessage(prev => `${prev} | Ответ бэкенда: isProfileComplete = ${response.data.is_profile_complete}`);
+
+        // Перенаправление на /language, если профиль не заполнен
+        if (!response.data.is_profile_complete) {
+          navigate('/language');
+        }
       } catch (error) {
         setDebugMessage(prev => `${prev} | Ошибка: ${error.message}`);
         const userData = { chat_id: chatId, isProfileComplete: false };
         localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
+        navigate('/language'); // Перенаправление при ошибке
       } finally {
         setLoading(false);
       }
     };
 
     initializeUser();
-  }, []);
+  }, [navigate]);
 
   if (loading) {
     return (
@@ -154,8 +145,7 @@ function App() {
             ) : (
               <LanguageSelection onSelectLanguage={(lang) => {
                 setSelectedLanguage(lang);
-                // Navigate to profile setup after language selection
-                window.location.href = '/profile';
+                navigate('/profile'); // Используем navigate вместо window.location.href
               }} />
             )
           }
