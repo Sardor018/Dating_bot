@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import { Route, Routes, NavLink } from 'react-router-dom';
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
@@ -23,7 +23,7 @@ function App() {
   const verifyTelegramInitData = () => {
     setDebugMessage('Проверка Telegram Web App...');
     if (!window.Telegram) {
-      setDebugMessage(`window.Telegram отсутствует. Откройте через Telegram. ${window.Telegram}`);
+      setDebugMessage(`window.Telegram отсутствует. Откройте через Telegram. ${window.Telegram}, ${window.Telegram?.WebApp}`);
       return null;
     }
     if (!window.Telegram.WebApp) {
@@ -71,6 +71,11 @@ function App() {
   };
 
   useEffect(() => {
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.ready();  // Сообщаем, что WebApp готов
+      window.Telegram.WebApp.expand(); // Делаем окно по всей высоте
+    }
+
     const initializeUser = async () => {
       setDebugMessage('Запуск инициализации...');
       const savedUser = localStorage.getItem('user');
