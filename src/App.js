@@ -20,7 +20,11 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [debugMessage, setDebugMessage] = useState('');
 
-  const verifyTelegramInitData = () => {
+  const verifyTelegramInitData = async () => {
+    await new Promise((resolve) => setTimeout(() => resolve(), 3000));
+    
+    // Проверяем window.Telegram и выводим тип и URL
+    setDebugMessage(`Проверка window.Telegram... typeof window.Telegram: ${typeof window.Telegram}, URL: ${window.location.href}`);
     setDebugMessage('Проверка Telegram Web App...');
     if (!window.Telegram) {
       setDebugMessage(`window.Telegram отсутствует. Откройте через Telegram. ${window.Telegram}, ${window.Telegram?.WebApp}`);
