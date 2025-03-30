@@ -39,18 +39,18 @@ function App() {
 
   useEffect(() => {
     const initializeUser = async () => {
-      const savedUser = localStorage.getItem('user');
-      if (savedUser) {
-        const parsedUser = JSON.parse(savedUser);
-        if (typeof parsedUser.chat_id !== 'string') {
-          localStorage.removeItem('user');
-          setLoading(false);
-          return;
-        }
-        setUser(parsedUser);
-        setLoading(false);
-        return;
-      }
+      // const savedUser = localStorage.getItem('user');
+      // if (savedUser) {
+      //   const parsedUser = JSON.parse(savedUser);
+      //   if (typeof parsedUser.chat_id !== 'string') {
+      //     localStorage.removeItem('user');
+      //     setLoading(false);
+      //     return;
+      //   }
+      //   setUser(parsedUser);
+      //   setLoading(false);
+      //   return;
+      // }
 
       const chatId = await verifyTelegramInitData();
       if (!chatId) {
