@@ -3,34 +3,40 @@
     background-color: #f5f5f5; /* Светлый фон, как на скриншоте */
     padding: 20px;
     border-radius: 10px;
-  }
-  
-  .profile form {
+    height: 100vh;
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+
+  .profile form {
+    display: flex;
+      flex-direction: column;
+      gap: 15px;
   }
   
-  .profile input[type="number"] {
-    width: 100px;
-    border: 1px solid #ef06cc;
-    background-color: #ffffff;
-    color: #000000;
-  }
-  
-  .profile select {
-    appearance: none;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="%23ef06cc"><polygon points="0,0 12,0 6,12"/></svg>');
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    border: 1px solid #ef06cc;
-    background-color: #ffffff;
-    color: #000000;
+  .profile input select, .country-dropdown, .region-dropdown[type="number"] {
+    background: #ef06cc;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      color: #000000;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
   }
   
   .profile button {
-    margin-top: 20px;
-    background-color: #ef06cc;
-    color: #ffffff;
+    background: #ef06cc;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      color: #ffffff;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
   }
   
   .profile button:hover {

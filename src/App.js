@@ -18,7 +18,6 @@ function App() {
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [debugMessage] = useState('Ожидание Telegram Web App...');
   const [selectedLanguage, setSelectedLanguage] = useState('ru');
   const navigate = useNavigate();
 
@@ -81,12 +80,7 @@ function App() {
 
   if (loading) {
     return (
-      <div>
-        <div>Загрузка...</div>
-        <div style={{ marginTop: '20px', padding: '10px', background: '#f0f0f0' }}>
-          {debugMessage}
-        </div>
-      </div>
+      <div>Загрузка...</div>
     );
   }
 
@@ -95,16 +89,12 @@ function App() {
       <div>
         <h2>Войдите через Telegram</h2>
         <p>Нажмите "Войти" в Telegram-боте @DatingAppBot для авторизации.</p>
-        <div style={{ marginTop: '20px', padding: '10px', background: '#f0f0f0' }}>
-          {debugMessage}
-        </div>
       </div>
     );
   }
 
   return (
     <div>
-      <h1>Dating Mini Web</h1>
       <Routes>
         <Route
           path="/language"
@@ -153,18 +143,6 @@ function App() {
           </NavLink>
         </nav>
       )}
-      <div
-        style={{
-          position: 'fixed',
-          bottom: '10px',
-          left: '10px',
-          padding: '10px',
-          background: '#f0f0f0',
-          border: '1px solid #ccc'
-        }}
-      >
-        {debugMessage}
-      </div>
     </div>
   );
 }
