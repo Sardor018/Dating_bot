@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Country, State, City } from "react-country-state-city"; // Импортируем компоненты из пакета
 import '../style/ProfileSetup.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
@@ -11,16 +12,13 @@ const UserProfileForm = ({ user, setUser }) => {
     instagram: user.instagram || "",
     about: user.about || "",
     country: user.country || "",
+    state: user.state || "",
     city: user.city || "",
     birthday: user.birthday || "",
     gender: user.gender || "",
   });
 
-  const [countries, setCountries] = useState([]);
-  const [cities, setCities] = useState([]);
-  const [filteredCountries, setFilteredCountries] = useState([]);
-  const [isLoadingCountries, setIsLoadingCountries] = useState(false); // Стейт для загрузки стран
-  const [isLoadingCities, setIsLoadingCities] = useState(false); // Стейт для загрузки городов
+  const [isLoading, setIsLoading] = useState(false); // Стейт для загрузки
   const selectedLanguage = user.selectedLanguage || "ru";
 
   const translations = {
@@ -31,74 +29,13 @@ const UserProfileForm = ({ user, setUser }) => {
   const t = translations[selectedLanguage] || translations["ru"];
   const navigate = useNavigate();
 
-  // Fetch countries on mount
-  useEffect(() => {
-    const fetchCountries = async () => {
-      setIsLoadingCountries(true);
-      try {
-        const response = await axios.get('https://restcountries.com/v3.1/all'); // API for country list
-        setCountries(response.data.map(country => ({
-          value: country.cca2,
-          label: country.name.common,
-        })));
-        setFilteredCountries(response.data.map(country => ({
-          value: country.cca2,
-          label: country.name.common,
-        })));
-      } catch (error) {
-        console.error("Ошибка при получении стран:", error);
-      } finally {
-        setIsLoadingCountries(false);
-      }
-    };
-    fetchCountries();
-  }, []);
-
-  // Функция фильтрации стран по вводу
-  const handleCountrySearch = (event) => {
-    const query = event.target.value.toLowerCase();
-    const filtered = countries.filter(country =>
-      country.label.toLowerCase().includes(query)
-    );
-    setFilteredCountries(filtered);
-  };
-
-  // Fetch cities when country changes
-  useEffect(() => {
-    if (formData.country) {
-      setIsLoadingCities(true);
-      const fetchCities = async () => {
-        try {
-          const response = await axios.get(`https://world-cities-api.herokuapp.com/cities?country=${formData.country}`);
-          setCities(response.data.map(city => ({
-            value: city.name,
-            label: city.name,
-          })));
-        } catch (error) {
-          console.error("Ошибка при получении городов:", error);
-        } finally {
-          setIsLoadingCities(false);
-        }
-      };
-      fetchCities();
-    } else {
-      setCities([]); // Если страна не выбрана, сбросить список городов
-    }
-  }, [formData.country]);
-
+  // Функция изменения значений
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSelectCountry = (e) => {
-    setFormData({ ...formData, country: e.target.value });
-  };
-
-  const handleSelectCity = (e) => {
-    setFormData({ ...formData, city: e.target.value });
-  };
-
+  // Отправка данных формы
   const handleSubmit = async () => {
     try {
       await axios.post(`${API_BASE_URL}/api/user/profile`, new URLSearchParams({
@@ -107,6 +44,7 @@ const UserProfileForm = ({ user, setUser }) => {
         instagram: formData.instagram,
         about: formData.about,
         country: formData.country,
+        state: formData.state,
         city: formData.city,
         birthday: formData.birthday,
         gender: formData.gender
@@ -124,42 +62,24 @@ const UserProfileForm = ({ user, setUser }) => {
       <input type="text" name="name" placeholder={t.name} value={formData.name} onChange={handleChange} />
       <input type="text" name="instagram" placeholder="Instagram (необязательно)" value={formData.instagram} onChange={handleChange} />
       <textarea name="about" placeholder="О себе" value={formData.about} onChange={handleChange}></textarea>
-      
+
       <div>
         <label>{t.city}</label>
-        <input
-          type="text"
-          placeholder="Поиск страны..."
-          onChange={handleCountrySearch}
-        />
-        {isLoadingCountries ? (
-          <p>Загрузка стран...</p>
-        ) : (
-          <select name="country" value={formData.country} onChange={handleSelectCountry}>
-            <option value="">{t.city}</option>
-            {filteredCountries.map(country => (
-              <option key={country.value} value={country.value}>{country.label}</option>
-            ))}
-          </select>
-        )}
+        <Country value={formData.country} onChange={(value) => setFormData({ ...formData, country: value })} />
+      </div>
+
+      <div>
+        <label>State</label>
+        <State country={formData.country} value={formData.state} onChange={(value) => setFormData({ ...formData, state: value })} />
       </div>
 
       <div>
         <label>{t.city}</label>
-        {isLoadingCities ? (
-          <p>Загрузка городов...</p>
-        ) : (
-          <select name="city" value={formData.city} onChange={handleSelectCity} disabled={!formData.country}>
-            <option value="">{t.city}</option>
-            {cities.map(city => (
-              <option key={city.value} value={city.value}>{city.label}</option>
-            ))}
-          </select>
-        )}
+        <City country={formData.country} state={formData.state} value={formData.city} onChange={(value) => setFormData({ ...formData, city: value })} />
       </div>
 
       <input type="date" name="birthday" value={formData.birthday} onChange={handleChange} />
-      
+
       <div>
         <label>
           <input type="radio" name="gender" value="male" checked={formData.gender === "male"} onChange={handleChange} /> {t.male}
