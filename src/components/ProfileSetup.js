@@ -12,37 +12,15 @@ const UserProfileForm = ({ userData, setUserData }) => {
     gender: "",
   });
 
-  const selectedLanguage = userData.selectedLanguage || "ru"; // Используем язык из userData
+  const selectedLanguage = userData?.selectedLanguage || "ru";
 
-  const t = {
-    ru: {
-      name: "Имя",
-      city: "Город",
-      birthDate: "Дата рождения",
-      gender: "Пол",
-      male: "Я парень",
-      female: "Я девушка",
-      continue: "Продолжить",
-    },
-    en: {
-      name: "Name",
-      city: "City",
-      birthDate: "Date of birth",
-      gender: "Gender",
-      male: "I am a guy",
-      female: "I am a girl",
-      continue: "Continue",
-    },
-    uz: {
-      name: "Ism",
-      city: "Shahar",
-      birthDate: "Tug‘ilgan sana",
-      gender: "Jins",
-      male: "Men yigitman",
-      female: "Men qizman",
-      continue: "Davom etish",
-    },
-  }[selectedLanguage];
+  const translations = {
+    ru: { name: "Имя", city: "Город", birthDate: "Дата рождения", gender: "Пол", male: "Я парень", female: "Я девушка", continue: "Продолжить" },
+    en: { name: "Name", city: "City", birthDate: "Date of birth", gender: "Gender", male: "I am a guy", female: "I am a girl", continue: "Continue" },
+    uz: { name: "Ism", city: "Shahar", birthDate: "Tug‘ilgan sana", gender: "Jins", male: "Men yigitman", female: "Men qizman", continue: "Davom etish" },
+  };
+  
+  const t = translations[selectedLanguage] || translations["ru"]; // Защита от undefined
 
   const navigate = useNavigate();
 
