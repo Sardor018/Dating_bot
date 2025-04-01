@@ -51,17 +51,20 @@ function App() {
         const userData = {
           chat_id: chatId,
           isProfileComplete: data.is_verified,
-          selectedLanguage: data.selected_language || null
+          selectedLanguage: data.selected_language || null,
+          name: data.name || "",
+          photos: data.photos || [],
+          selfie: data.selfie || null 
         };
         saveUser(userData);
         if (!data.is_verified) {
           if (!userData.selectedLanguage) {
             navigate('/language');
-          } else if (!data.name) {
+          } else if (!userData.name) {
             navigate('/profile');
-          } else if (!data.photos || data.photos.length === 0) {
+          } else if (!userData.photos || data.photos.length === 0) {
             navigate('/photos');
-          } else if (!data.selfie) {
+          } else if (!userData.selfie) {
             navigate('/selfie');
           }
         } else {
