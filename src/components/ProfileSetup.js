@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import '../style/ProfileSetup.css';
+
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const UserProfileForm = ({ user, setUser }) => {
@@ -20,7 +21,7 @@ const UserProfileForm = ({ user, setUser }) => {
   const [isLoadingCountries, setIsLoadingCountries] = useState(false); // Стейт для загрузки стран
   const [isLoadingCities, setIsLoadingCities] = useState(false); // Стейт для загрузки городов
   const selectedLanguage = user.selectedLanguage || "ru";
-  
+
   const translations = {
     ru: { name: "Имя", city: "Город", birthDate: "Дата рождения", gender: "Пол", male: "Я парень", female: "Я девушка", continue: "Продолжить" },
     en: { name: "Name", city: "City", birthDate: "Date of birth", gender: "Gender", male: "I am a guy", female: "I am a girl", continue: "Continue" },
@@ -67,7 +68,7 @@ const UserProfileForm = ({ user, setUser }) => {
       };
       fetchCities();
     } else {
-      setCities([]);
+      setCities([]); // Если страна не выбрана, сбросить список городов
     }
   }, [formData.country]);
 
@@ -121,7 +122,7 @@ const UserProfileForm = ({ user, setUser }) => {
         {isLoadingCities ? (
           <p>Загрузка городов...</p> // Показать иконку или текст, когда города загружаются
         ) : (
-          <select name="city" value={formData.city} onChange={handleChange}>
+          <select name="city" value={formData.city} onChange={handleChange} disabled={!formData.country}>
             <option value="">{t.city}</option>
             {cities.map(city => (
               <option key={city.value} value={city.value}>{city.label}</option>
