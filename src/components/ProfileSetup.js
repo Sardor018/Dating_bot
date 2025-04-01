@@ -18,7 +18,7 @@ const UserProfileForm = ({ user, setUser }) => {
     gender: user.gender || "",
   });
 
-  сonst [cities, setCities] = useState([]);
+  const [cities, setCities] = useState([]);
   const [isLoadingCities, setIsLoadingCities] = useState(false);
 
   const selectedLanguage = user.selectedLanguage || "ru";
