@@ -1,22 +1,28 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "../style/LanguageSelection.css";
 
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 const languages = ["O'zbekcha", "English", "Русский"];
 
-const LanguageSelector = ({ onSelectLanguage }) => {
-  const [selectedLanguage, setSelectedLanguage] = useState("Русский");
+const LanguageSelector = ({ setUser, user }) => {
+  const [selectedLanguage, setSelectedLanguage] = useState(user.selectedLanguage || "Русский");
   const navigate = useNavigate();
 
-  const handleLanguageSelection = () => {
+  const handleLanguageSelection = async () => {
     const langCode = selectedLanguage === "Русский" ? "ru" : 
                      selectedLanguage === "English" ? "en" : "uz";
-    onSelectLanguage(langCode);
-  };
-
-  const handleLanguageClick = (lang) => {
-    console.log("Выбран язык:", lang); // Добавляем лог для отладки
-    setSelectedLanguage(lang);
+    try {
+      await axios.post(`${API_BASE_URL}/api/user/language`, new URLSearchParams({
+        chat_id: user.chat_id,
+        selected_language: langCode
+      }));
+      setUser({ ...user, selectedLanguage: langCode });
+      navigate("/profile");
+    } catch (error) {
+      console.error("Ошибка при сохранении языка:", error);
+    }
   };
 
   return (
@@ -27,7 +33,7 @@ const LanguageSelector = ({ onSelectLanguage }) => {
           <li
             key={lang}
             className={selectedLanguage === lang ? "selected" : ""}
-            onClick={() => handleLanguageClick(lang)} // Используем отдельную функцию
+            onClick={() => setSelectedLanguage(lang)}
           >
             {lang}
           </li>

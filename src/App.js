@@ -8,6 +8,7 @@ import Profile from './components/Profile';
 import LanguageSelection from './components/LanguageSelection';
 import ProfileSetup from './components/ProfileSetup';
 import PhotoUpload from './components/PhotoUpload';
+import SelfieVerification from './components/SelfieVerification';
 import { FaRegUserCircle } from 'react-icons/fa';
 import { IoChatbubbleEllipsesOutline } from 'react-icons/io5';
 import { MdFavoriteBorder } from 'react-icons/md';
@@ -18,7 +19,6 @@ function App() {
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedLanguage, setSelectedLanguage] = useState('ru');
   const navigate = useNavigate();
 
   const saveUser = (userData) => {
@@ -38,7 +38,7 @@ function App() {
 
   useEffect(() => {
     const initializeUser = async () => {
-      const chatId = 2092771486;
+      const chatId = await verifyTelegramInitData() || "2092771486"; // Для тестирования
       if (!chatId) {
         setLoading(false);
         return;
@@ -48,24 +48,26 @@ function App() {
         const { data } = await axios.get(`${API_BASE_URL}/check_user`, {
           params: { chat_id: chatId }
         });
-        const userData = { 
-          chat_id: chatId, 
+        const userData = {
+          chat_id: chatId,
           isProfileComplete: data.is_verified,
           selectedLanguage: data.selected_language || null
         };
         saveUser(userData);
-        if (!data.is_profile_complete) {
+        if (!data.is_verified) {
           if (!userData.selectedLanguage) {
             navigate('/language');
           } else {
             navigate('/profile');
           }
+        } else {
+          navigate('/');
         }
       } catch (error) {
-        const userData = { 
-          chat_id: chatId, 
+        const userData = {
+          chat_id: chatId,
           isProfileComplete: false,
-          selectedLanguage: null 
+          selectedLanguage: null
         };
         saveUser(userData);
         navigate('/language');
@@ -78,9 +80,7 @@ function App() {
   }, [navigate, verifyTelegramInitData]);
 
   if (loading) {
-    return (
-      <div className='loader'>Загрузка...</div>
-    );
+    return <div className='loader'>Загрузка...</div>;
   }
 
   if (!user) {
@@ -95,51 +95,25 @@ function App() {
   return (
     <div>
       <Routes>
-        <Route
-          path="/language"
-          element={
-            <LanguageSelection
-              onSelectLanguage={(lang) => {
-                setSelectedLanguage(lang);
-                navigate('/profile');
-              }}
-            />
-          }
-        />
-        <Route
-          path="/profile"
-          element={<ProfileSetup user={user} setUser={setUser} selectedLanguage={selectedLanguage} />}
-        />
-        <Route
-          path="/photos"
-          element={<PhotoUpload user={user} onComplete={() => setUser({ ...user, isProfileComplete: true })} />}
-        />
-        <Route
-          path="/"
-          element={
-            user?.isProfileComplete ? ( // Добавляем проверку на user
-              <Candidates setSelectedMatch={setSelectedMatch} currentUserChatId={user.chat_id} />
-            ) : (
-              <>
-                {console.log("Рендеринг LanguageSelector, isProfileComplete:", user?.isProfileComplete)}
-                <LanguageSelection
-                  onSelectLanguage={(lang) => {
-                    setSelectedLanguage(lang);
-                    navigate('/profile');
-                  }}
-                />
-              </>
-            )
-          }
-        />
-        {user?.isProfileComplete && ( // Добавляем проверку на user
+        <Route path="/language" element={<LanguageSelection setUser={saveUser} user={user} />} />
+        <Route path="/profile" element={<ProfileSetup setUser={saveUser} user={user} />} />
+        <Route path="/photos" element={<PhotoUpload setUser={saveUser} user={user} />} />
+        <Route path="/selfie" element={<SelfieVerification setUser={saveUser} user={user} />} />
+        <Route path="/" element={
+          user.isProfileComplete ? (
+            <Candidates setSelectedMatch={setSelectedMatch} currentUserChatId={user.chat_id} />
+          ) : (
+            <LanguageSelection setUser={saveUser} user={user} />
+          )
+        } />
+        {user.isProfileComplete && (
           <>
             <Route path="/chat" element={<Chat match={selectedMatch} />} />
             <Route path="/profile-view" element={<Profile chatId={user.chat_id} />} />
           </>
         )}
       </Routes>
-      {user?.isProfileComplete && ( // Добавляем проверку на user
+      {user.isProfileComplete && (
         <nav>
           <NavLink to="/" className={({ isActive }) => (isActive ? 'active-link' : '')}>
             <MdFavoriteBorder size={24} />
