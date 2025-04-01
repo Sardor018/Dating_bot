@@ -57,8 +57,12 @@ function App() {
         if (!data.is_verified) {
           if (!userData.selectedLanguage) {
             navigate('/language');
-          } else {
+          } else if (!data.name) {
             navigate('/profile');
+          } else if (!data.photos || data.photos.length === 0) {
+            navigate('/photos');
+          } else if (!data.selfie) {
+            navigate('/selfie');
           }
         } else {
           navigate('/');
