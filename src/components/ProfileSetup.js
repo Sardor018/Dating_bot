@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Country, State, City } from "react-country-state-city"; // Импортируем компоненты из пакета
 import '../style/ProfileSetup.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
@@ -12,13 +11,16 @@ const UserProfileForm = ({ user, setUser }) => {
     instagram: user.instagram || "",
     about: user.about || "",
     country: user.country || "",
-    state: user.state || "",
     city: user.city || "",
     birthday: user.birthday || "",
     gender: user.gender || "",
   });
 
-  const [isLoading, setIsLoading] = useState(false); // Стейт для загрузки
+  const [countries, setCountries] = useState([]);
+  const [cities, setCities] = useState([]);  // Добавьте этот стейт
+  const [isLoadingCountries, setIsLoadingCountries] = useState(false);
+  const [isLoadingCities, setIsLoadingCities] = useState(false);  // Добавьте этот стейт
+
   const selectedLanguage = user.selectedLanguage || "ru";
 
   const translations = {
@@ -26,15 +28,30 @@ const UserProfileForm = ({ user, setUser }) => {
     en: { name: "Name", city: "City", birthDate: "Date of birth", gender: "Gender", male: "I am a guy", female: "I am a girl", continue: "Continue" },
     uz: { name: "Ism", city: "Shahar", birthDate: "Tug‘ilgan sana", gender: "Jins", male: "Men yigitman", female: "Men qizman", continue: "Davom etish" },
   };
+  
   const t = translations[selectedLanguage] || translations["ru"];
   const navigate = useNavigate();
 
-  // Функция изменения значений
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-  
+  // Fetch countries on mount
+  useEffect(() => {
+    const fetchCountries = async () => {
+      setIsLoadingCountries(true);
+      try {
+        const response = await axios.get('https://restcountries.com/v3.1/all'); // API for country list
+        setCountries(response.data.map(country => ({
+          value: country.cca2,
+          label: country.name.common,
+        })));
+      } catch (error) {
+        console.error("Ошибка при получении стран:", error);
+      } finally {
+        setIsLoadingCountries(false);
+      }
+    };
+    fetchCountries();
+  }, []);
+
+  // Fetch cities when country changes
   useEffect(() => {
     if (formData.country) {
       setIsLoadingCities(true);
@@ -57,7 +74,11 @@ const UserProfileForm = ({ user, setUser }) => {
     }
   }, [formData.country]);
 
-  // Отправка данных формы
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
   const handleSubmit = async () => {
     try {
       await axios.post(`${API_BASE_URL}/api/user/profile`, new URLSearchParams({
@@ -66,7 +87,6 @@ const UserProfileForm = ({ user, setUser }) => {
         instagram: formData.instagram,
         about: formData.about,
         country: formData.country,
-        state: formData.state,
         city: formData.city,
         birthday: formData.birthday,
         gender: formData.gender
@@ -87,17 +107,30 @@ const UserProfileForm = ({ user, setUser }) => {
 
       <div>
         <label>{t.city}</label>
-        <Country value={formData.country} onChange={(value) => setFormData({ ...formData, country: value })} />
-      </div>
-
-      <div>
-        <label>State</label>
-        <State country={formData.country} value={formData.state} onChange={(value) => setFormData({ ...formData, state: value })} />
+        {isLoadingCountries ? (
+          <p>Загрузка стран...</p> // Показать иконку или текст, когда страны загружаются
+        ) : (
+          <select name="country" value={formData.country} onChange={handleChange}>
+            <option value="">{t.city}</option>
+            {countries.map(country => (
+              <option key={country.value} value={country.value}>{country.label}</option>
+            ))}
+          </select>
+        )}
       </div>
 
       <div>
         <label>{t.city}</label>
-        <City country={formData.country} state={formData.state} value={formData.city} onChange={(value) => setFormData({ ...formData, city: value })} />
+        {isLoadingCities ? (
+          <p>Загрузка городов...</p> // Показать иконку или текст, когда города загружаются
+        ) : (
+          <select name="city" value={formData.city} onChange={handleChange}>
+            <option value="">{t.city}</option>
+            {cities.map(city => (
+              <option key={city.value} value={city.value}>{city.label}</option>
+            ))}
+          </select>
+        )}
       </div>
 
       <input type="date" name="birthday" value={formData.birthday} onChange={handleChange} />
