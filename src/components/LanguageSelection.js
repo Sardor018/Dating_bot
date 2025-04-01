@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import "../style/LanguageSelection.css";
 
@@ -36,4 +36,11 @@ const LanguageSelector = ({ setUserData }) => {
   );
 };
 
-export default LanguageSelector;
+// Оборачиваем в Suspense, чтобы изолировать от i18n
+const LanguageSelectorWithSuspense = (props) => (
+  <Suspense fallback={null}>
+    <LanguageSelector {...props} />
+  </Suspense>
+);
+
+export default LanguageSelectorWithSuspense;
