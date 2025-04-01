@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
+import '../style/ProfileSetup.css';
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const UserProfileForm = ({ user, setUser }) => {
@@ -17,6 +17,8 @@ const UserProfileForm = ({ user, setUser }) => {
 
   const [countries, setCountries] = useState([]);
   const [cities, setCities] = useState([]);
+  const [isLoadingCountries, setIsLoadingCountries] = useState(false); // Стейт для загрузки стран
+  const [isLoadingCities, setIsLoadingCities] = useState(false); // Стейт для загрузки городов
   const selectedLanguage = user.selectedLanguage || "ru";
   
   const translations = {
@@ -30,6 +32,7 @@ const UserProfileForm = ({ user, setUser }) => {
   // Fetch countries on mount
   useEffect(() => {
     const fetchCountries = async () => {
+      setIsLoadingCountries(true);
       try {
         const response = await axios.get('https://restcountries.com/v3.1/all'); // API for country list
         setCountries(response.data.map(country => ({
@@ -38,6 +41,8 @@ const UserProfileForm = ({ user, setUser }) => {
         })));
       } catch (error) {
         console.error("Ошибка при получении стран:", error);
+      } finally {
+        setIsLoadingCountries(false);
       }
     };
     fetchCountries();
@@ -45,8 +50,9 @@ const UserProfileForm = ({ user, setUser }) => {
 
   // Fetch cities when country changes
   useEffect(() => {
-    const fetchCities = async () => {
-      if (formData.country) {
+    if (formData.country) {
+      setIsLoadingCities(true);
+      const fetchCities = async () => {
         try {
           const response = await axios.get(`https://world-cities-api.herokuapp.com/cities?country=${formData.country}`);
           setCities(response.data.map(city => ({
@@ -55,10 +61,14 @@ const UserProfileForm = ({ user, setUser }) => {
           })));
         } catch (error) {
           console.error("Ошибка при получении городов:", error);
+        } finally {
+          setIsLoadingCities(false);
         }
-      }
-    };
-    fetchCities();
+      };
+      fetchCities();
+    } else {
+      setCities([]);
+    }
   }, [formData.country]);
 
   const handleChange = (e) => {
@@ -91,19 +101,37 @@ const UserProfileForm = ({ user, setUser }) => {
       <input type="text" name="name" placeholder={t.name} value={formData.name} onChange={handleChange} />
       <input type="text" name="instagram" placeholder="Instagram (необязательно)" value={formData.instagram} onChange={handleChange} />
       <textarea name="about" placeholder="О себе" value={formData.about} onChange={handleChange}></textarea>
-      <select name="country" value={formData.country} onChange={handleChange}>
-        <option value="">{t.city}</option>
-        {countries.map(country => (
-          <option key={country.value} value={country.value}>{country.label}</option>
-        ))}
-      </select>
-      <select name="city" value={formData.city} onChange={handleChange}>
-        <option value="">{t.city}</option>
-        {cities.map(city => (
-          <option key={city.value} value={city.value}>{city.label}</option>
-        ))}
-      </select>
+      
+      <div>
+        <label>{t.city}</label>
+        {isLoadingCountries ? (
+          <p>Загрузка стран...</p> // Показать иконку или текст, когда страны загружаются
+        ) : (
+          <select name="country" value={formData.country} onChange={handleChange}>
+            <option value="">{t.city}</option>
+            {countries.map(country => (
+              <option key={country.value} value={country.value}>{country.label}</option>
+            ))}
+          </select>
+        )}
+      </div>
+
+      <div>
+        <label>{t.city}</label>
+        {isLoadingCities ? (
+          <p>Загрузка городов...</p> // Показать иконку или текст, когда города загружаются
+        ) : (
+          <select name="city" value={formData.city} onChange={handleChange}>
+            <option value="">{t.city}</option>
+            {cities.map(city => (
+              <option key={city.value} value={city.value}>{city.label}</option>
+            ))}
+          </select>
+        )}
+      </div>
+
       <input type="date" name="birthday" value={formData.birthday} onChange={handleChange} />
+      
       <div>
         <label>
           <input type="radio" name="gender" value="male" checked={formData.gender === "male"} onChange={handleChange} /> {t.male}
@@ -112,6 +140,7 @@ const UserProfileForm = ({ user, setUser }) => {
           <input type="radio" name="gender" value="female" checked={formData.gender === "female"} onChange={handleChange} /> {t.female}
         </label>
       </div>
+
       <button onClick={handleSubmit}>{t.continue}</button>
     </div>
   );
