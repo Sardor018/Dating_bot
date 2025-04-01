@@ -1,28 +1,26 @@
-import React, { useState } from 'react';
+// components/LanguageSelector.js
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Хук для навигации
 import '../style/LanguageSelection.css';
 
-function LanguageSelection({ onSelectLanguage }) {
-  const [selectedLanguage, setSelectedLanguage] = useState('ru');
+const LanguageSelector = ({ setUserData }) => {
+  const [language, setLanguage] = useState(""); // Состояние для хранения выбранного языка
+  const navigate = useNavigate(); // Инициализация навигации
 
-  const handleLanguageChange = (event) => {
-    setSelectedLanguage(event.target.value);
-  };
-
-  const handleSubmit = () => {
-    onSelectLanguage(selectedLanguage);
+  const handleLanguageSelection = (lang) => {
+    setLanguage(lang); // Устанавливаем выбранный язык в состояние
+    setUserData(prevState => ({ ...prevState, language: lang })); // Обновляем данные пользователя с выбранным языком
+    navigate("/profile"); // Перенаправляем на страницу профиля после выбора языка
   };
 
   return (
-    <div>
+    <div className="language-selection">
       <h2>Выберите язык</h2>
-      <select value={selectedLanguage} onChange={handleLanguageChange}>
-        <option value="ru">Русский</option>
-        <option value="en">English</option>
-        <option value="uz">O‘zbekcha</option>
-      </select>
-      <button onClick={handleSubmit}>Далее</button>
+      <button onClick={() => handleLanguageSelection("uzbek")}>O'zbekcha</button>
+      <button onClick={() => handleLanguageSelection("english")}>English</button>
+      <button onClick={() => handleLanguageSelection("russian")}>Русский</button>
     </div>
   );
-}
+};
 
-export default LanguageSelection;
+export default LanguageSelector;

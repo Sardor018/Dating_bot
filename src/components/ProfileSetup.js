@@ -1,110 +1,91 @@
-import React, { useState } from 'react';
-import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
+// components/UserProfileForm.js
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-function ProfileSetup({ user, setUser, selectedLanguage }) {
-  const [name, setName] = useState(user.name || '');
-  const [country, setCountry] = useState(user.country || '');
-  const [city, setCity] = useState(user.city || '');
-  const [birthDate, setBirthDate] = useState(user.birth_date || '');
-  const [gender, setGender] = useState(user.gender || '');
+const UserProfileForm = ({ userData, setUserData }) => {
+  const [formData, setFormData] = useState({
+    name: "",
+    instagram: "",
+    about: "",
+    country: "",
+    city: "",
+    birthday: "",
+    gender: "",
+  });
 
-  const t = {
-    ru: {
-      name: 'Имя',
-      city: 'Город',
-      birthDate: 'Дата рождения',
-      gender: 'Пол',
-      male: 'Я парень',
-      female: 'Я девушка',
-      continue: 'Продолжить',
-      ageError: 'Минимальный возраст — 18 лет',
-    },
-    en: {
-      name: 'Name',
-      city: 'City',
-      birthDate: 'Date of birth',
-      gender: 'Gender',
-      male: 'I am a guy',
-      female: 'I am a girl',
-      continue: 'Continue',
-      ageError: 'Minimum age is 18 years',
-    },
-    uz: {
-      name: 'Ism',
-      city: 'Shahar',
-      birthDate: 'Tug‘ilgan sana',
-      gender: 'Jins',
-      male: 'Men yigitman',
-      female: 'Men qizman',
-      continue: 'Davom etish',
-      ageError: 'Minimal yosh — 18 yil',
-    },
-  }[selectedLanguage];
+  // const t = {
+  //   ru: {
+  //     name: 'Имя',
+  //     city: 'Город',
+  //     birthDate: 'Дата рождения',
+  //     gender: 'Пол',
+  //     male: 'Я парень',
+  //     female: 'Я девушка',
+  //     continue: 'Продолжить',
+  //   },
+  //   en: {
+  //     name: 'Name',
+  //     city: 'City',
+  //     birthDate: 'Date of birth',
+  //     gender: 'Gender',
+  //     male: 'I am a guy',
+  //     female: 'I am a girl',
+  //     continue: 'Continue',
+  //   },
+  //   uz: {
+  //     name: 'Ism',
+  //     city: 'Shahar',
+  //     birthDate: 'Tug‘ilgan sana',
+  //     gender: 'Jins',
+  //     male: 'Men yigitman',
+  //     female: 'Men qizman',
+  //     continue: 'Davom etish',
+  //   },
+  // }[selectedLanguage];
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const age = new Date().getFullYear() - new Date(birthDate).getFullYear();
-    if (age < 18) {
-      alert(t.ageError);
-      return;
-    }
+  const navigate = useNavigate();
 
-    const updatedUser = {
-      ...user,
-      name,
-      country,
-      city,
-      birth_date: birthDate,
-      gender,
-      isProfileComplete: false,
-    };
-    setUser(updatedUser);
-    window.location.href = '/photos';
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value }); // Обновляем состояние формы при каждом изменении
   };
 
+  const handleSubmit = () => {
+    setUserData(prevState => ({ ...prevState, ...formData })); // Сохраняем данные в основное состояние пользователя
+    navigate("/photos"); // Переход на страницу загрузки фото
+  };
 
   return (
-    <div className="profile">
-      <h2>Заполните профиль</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          placeholder={t.name}
-        />
-        <CountryDropdown
-          value={country}
-          onChange={(val) => setCountry(val)}
-          defaultOptionLabel="Выберите страну"
-          classes="country-dropdown"
-        />
-        <RegionDropdown
-          country={country}
-          value={city}
-          onChange={(val) => setCity(val)}
-          defaultOptionLabel={t.city}
-          classes="region-dropdown"
-        />
-        <input
-          type="date"
-          value={birthDate}
-          onChange={(e) => setBirthDate(e.target.value)}
-          required
-        />
-        <select
-          value={gender}
-          onChange={(e) => setGender(e.target.value)}
-          required
-        >
-          <option value="">{t.gender}</option>
-          <option value="male">{t.male}</option>
-          <option value="female">{t.female}</option>
-        </select>
-        <button type="submit">{t.continue}</button>
-      </form>
+    <div>
+      <h2>Введите личные данные</h2>
+      <input type="text" name="name" placeholder="Имя" value={formData.name} onChange={handleChange} />
+      <input type="text" name="instagram" placeholder="Instagram (необязательно)" value={formData.instagram} onChange={handleChange} />
+      <textarea name="about" placeholder="О себе" value={formData.about} onChange={handleChange}></textarea>
+      
+      <select name="country" value={formData.country} onChange={handleChange}>
+        <option value="">Выберите страну</option>
+        {/* Здесь добавьте опции стран */}
+      </select>
+      
+      <select name="city" value={formData.city} onChange={handleChange}>
+        <option value="">Выберите город</option>
+        {/* Здесь добавьте опции городов */}
+      </select>
+
+      <input type="date" name="birthday" value={formData.birthday} onChange={handleChange} />
+      
+      <div>
+        <label>
+          <input type="radio" name="gender" value="male" onChange={handleChange} /> Мужской
+        </label>
+        <label>
+          <input type="radio" name="gender" value="female" onChange={handleChange} /> Женский
+        </label>
+      </div>
+
+      <button onClick={handleSubmit}>Далее</button>
     </div>
   );
-}
+};
 
-export default ProfileSetup;
+export default UserProfileForm;

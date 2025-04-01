@@ -80,7 +80,7 @@ function App() {
 
   if (loading) {
     return (
-      <div>Загрузка...</div>
+      <div className='loader'>Загрузка...</div>
     );
   }
 
@@ -97,22 +97,15 @@ function App() {
     <div>
       <Routes>
         <Route
-          path="/language"
-          element={<LanguageSelection onSelectLanguage={setSelectedLanguage} />}
+          path="/language" element={<LanguageSelection onSelectLanguage={setSelectedLanguage} />}
         />
         <Route
-          path="/profile"
-          element={<ProfileSetup user={user} setUser={setUser} selectedLanguage={selectedLanguage} />}
+          path="/profile" element={<ProfileSetup user={user} setUser={setUser} selectedLanguage={selectedLanguage} />}
         />
-        <Route
-          path="/photos"
-          element={<PhotoUpload user={user} onComplete={() => setUser({ ...user, isProfileComplete: true })} />}
+        <Route path="/photos" element={<PhotoUpload user={user} onComplete={() => setUser({ ...user, isProfileComplete: true })} />}
         />
-        <Route
-          path="/"
-          element={
-            user.isProfileComplete ? (
-              <Candidates setSelectedMatch={setSelectedMatch} currentUserChatId={user.chat_id} />
+        <Route path="/" element={
+            user.isProfileComplete ? ( <Candidates setSelectedMatch={setSelectedMatch} currentUserChatId={user.chat_id} />
             ) : (
               <LanguageSelection
                 onSelectLanguage={(lang) => {
