@@ -1,51 +1,22 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useState } from 'react';
+import { countries } from 'countries-list';
+import worldCities from 'world-cities';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL;
+function ProfileForm({ t, formData, handleChange, handleSubmit }) {
+  const [showCountryList, setShowCountryList] = useState(false);
+  const [showCityList, setShowCityList] = useState(false);
 
-const UserProfileForm = ({ user, setUser }) => {
-  const [formData, setFormData] = useState({
-    name: user.name || "",
-    instagram: user.instagram || "",
-    about: user.about || "",
-    country: user.country || "",
-    city: user.city || "",
-    birthday: user.birthday || "",
-    gender: user.gender || "",
-  });
+  // Convert countries object to array
+  const countryArray = Object.entries(countries).map(([code, data]) => ({
+    code,
+    name: data.name
+  }));
 
-  const selectedLanguage = user.selectedLanguage || "ru";
-  const translations = {
-    ru: { name: "Имя", city: "Город", birthDate: "Дата рождения", gender: "Пол", male: "Я парень", female: "Я девушка", continue: "Продолжить" },
-    en: { name: "Name", city: "City", birthDate: "Date of birth", gender: "Gender", male: "I am a guy", female: "I am a girl", continue: "Continue" },
-    uz: { name: "Ism", city: "Shahar", birthDate: "Tug‘ilgan sana", gender: "Jins", male: "Men yigitman", female: "Men qizman", continue: "Davom etish" },
-  };
-  const t = translations[selectedLanguage] || translations["ru"];
-  const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = async () => {
-    try {
-      await axios.post(`${API_BASE_URL}/api/user/profile`, new URLSearchParams({
-        chat_id: user.chat_id,
-        name: formData.name,
-        instagram: formData.instagram,
-        about: formData.about,
-        country: formData.country,
-        city: formData.city,
-        birthday: formData.birthday,
-        gender: formData.gender
-      }));
-      setUser({ ...user, ...formData });
-      navigate("/photos");
-    } catch (error) {
-      console.error("Ошибка при сохранении профиля:", error);
-    }
+  // Filter cities by selected country
+  const getCitiesByCountry = (countryName) => {
+    return worldCities
+      .filter(city => city.country === countryName)
+      .map(city => city.name);
   };
 
   return (
@@ -54,12 +25,49 @@ const UserProfileForm = ({ user, setUser }) => {
       <input type="text" name="name" placeholder={t.name} value={formData.name} onChange={handleChange} />
       <input type="text" name="instagram" placeholder="Instagram (необязательно)" value={formData.instagram} onChange={handleChange} />
       <textarea name="about" placeholder="О себе" value={formData.about} onChange={handleChange}></textarea>
-      <select name="country" value={formData.country} onChange={handleChange}>
-        <option value="">{t.city}</option>
-      </select>
-      <select name="city" value={formData.city} onChange={handleChange}>
-        <option value="">{t.city}</option>
-      </select>
+      
+      <div className="location-container">
+        <button className="location-btn" onClick={() => setShowCountryList(!showCountryList)}>
+          {formData.country ? `${formData.country}${formData.city ? ', ' + formData.city : ''}` : 'Выбрать город'}
+          <span className="dropdown-icon">▼</span>
+        </button>
+        
+        {showCountryList && !formData.country && (
+          <div className="dropdown-list">
+            {countryArray.map(country => (
+              <div 
+                key={country.code} 
+                className="dropdown-item"
+                onClick={() => {
+                  handleChange({ target: { name: 'country', value: country.name } });
+                  setShowCountryList(false);
+                  setShowCityList(true);
+                }}
+              >
+                {country.name}
+              </div>
+            ))}
+          </div>
+        )}
+        
+        {showCityList && formData.country && (
+          <div className="dropdown-list">
+            {getCitiesByCountry(formData.country).map(city => (
+              <div 
+                key={city} 
+                className="dropdown-item"
+                onClick={() => {
+                  handleChange({ target: { name: 'city', value: city } });
+                  setShowCityList(false);
+                }}
+              >
+                {city}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      
       <input type="date" name="birthday" value={formData.birthday} onChange={handleChange} />
       <div>
         <label>
@@ -72,6 +80,6 @@ const UserProfileForm = ({ user, setUser }) => {
       <button onClick={handleSubmit}>{t.continue}</button>
     </div>
   );
-};
+}
 
-export default UserProfileForm;
+export default ProfileForm;
