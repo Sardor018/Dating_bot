@@ -1,22 +1,19 @@
-import { useState } from 'react';
-import { countries } from 'countries-list';
-import worldCities from 'world-cities';
+import { useState, useMemo } from 'react';
+import countryList from 'react-select-country-list';
 
 function ProfileForm({ t, formData, handleChange, handleSubmit }) {
   const [showCountryList, setShowCountryList] = useState(false);
   const [showCityList, setShowCityList] = useState(false);
+  
+  // Get country list from the package
+  const countries = useMemo(() => countryList().getData(), []);
 
-  // Convert countries object to array
-  const countryArray = Object.entries(countries).map(([code, data]) => ({
-    code,
-    name: data.name
-  }));
-
-  // Filter cities by selected country
-  const getCitiesByCountry = (countryName) => {
-    return worldCities
-      .filter(city => city.country === countryName)
-      .map(city => city.name);
+  // Example city data (you'll need a separate source for cities)
+  const cities = {
+    'United States': ['New York', 'Los Angeles', 'Chicago'],
+    'United Kingdom': ['London', 'Manchester', 'Birmingham'],
+    'Russia': ['Moscow', 'Saint Petersburg', 'Novosibirsk'],
+    // Add more as needed
   };
 
   return (
@@ -34,25 +31,25 @@ function ProfileForm({ t, formData, handleChange, handleSubmit }) {
         
         {showCountryList && !formData.country && (
           <div className="dropdown-list">
-            {countryArray.map(country => (
+            {countries.map(country => (
               <div 
-                key={country.code} 
+                key={country.value} 
                 className="dropdown-item"
                 onClick={() => {
-                  handleChange({ target: { name: 'country', value: country.name } });
+                  handleChange({ target: { name: 'country', value: country.label } });
                   setShowCountryList(false);
                   setShowCityList(true);
                 }}
               >
-                {country.name}
+                {country.label}
               </div>
             ))}
           </div>
         )}
         
-        {showCityList && formData.country && (
+        {showCityList && formData.country && cities[formData.country] && (
           <div className="dropdown-list">
-            {getCitiesByCountry(formData.country).map(city => (
+            {cities[formData.country].map(city => (
               <div 
                 key={city} 
                 className="dropdown-item"
@@ -62,7 +59,7 @@ function ProfileForm({ t, formData, handleChange, handleSubmit }) {
                 }}
               >
                 {city}
-              </div>
+            </div>
             ))}
           </div>
         )}
