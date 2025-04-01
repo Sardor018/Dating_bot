@@ -1,53 +1,37 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-function PhotoUpload({ user, onComplete }) {
+const PhotoUploadAndAgreement = ({ setUserData }) => {
   const [photos, setPhotos] = useState([]);
-  const apiBaseUrl = process.env.REACT_APP_API_URL;
+  const [agreement, setAgreement] = useState(false);
+  const navigate = useNavigate();
 
-  const handlePhotoChange = (event) => {
-    const files = event.target.files;
-    setPhotos(Array.from(files));
+  const handlePhotoChange = (e) => {
+    setPhotos([...photos, ...e.target.files]); // Добавляем загруженные фото в состояние
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append('chat_id', user.chat_id);
-    formData.append('name', user.name || ''); // Предполагаем, что данные уже заполнены в ProfileSetup
-    formData.append('instagram', user.instagram || '');
-    formData.append('bio', user.bio || '');
-    formData.append('country', user.country || '');
-    formData.append('city', user.city || '');
-    formData.append('birth_date', user.birth_date || '');
-    formData.append('gender', user.gender || '');
-    formData.append('min_age_partner', user.min_age_partner || 18);
-
-    photos.forEach((photo) => {
-      formData.append('photos', photo);
-    });
-
-    try {
-      await axios.post(`${apiBaseUrl}/profile`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'ngrok-skip-browser-warning': 'true',
-        },
-      });
-      onComplete();
-    } catch (error) {
-      console.error('Ошибка при загрузке фото:', error.response ? error.response.data : error.message);
+  const handleSubmit = () => {
+    if (photos.length > 0 && agreement) {
+      setUserData(prevState => ({ ...prevState, photos })); // Сохраняем фотографии и юридическое согласие в состояние
+      navigate("/selfie"); // Переход на страницу селфи
+    } else {
+      alert("Загрузите фото и примите условия");
     }
   };
 
   return (
-    <div className="photo-upload">
-      <h2>Загрузите фото</h2>
-      <p>Пожалуйста, загрузите минимум одно фото.</p>
-      <input type="file" accept="image/*" multiple onChange={handlePhotoChange} required />
-      <button onClick={handleSubmit}>Продолжить</button>
+    <div>
+      <h2>Загрузите фотографии (до 3)</h2>
+      <input type="file" multiple onChange={handlePhotoChange} />
+
+      <label>
+        <input type="checkbox" checked={agreement} onChange={(e) => setAgreement(e.target.checked)} />
+        Я принимаю условия соглашения
+      </label>
+
+      <button onClick={handleSubmit}>Далее</button>
     </div>
   );
-}
+};
 
-export default PhotoUpload;
+export default PhotoUploadAndAgreement;

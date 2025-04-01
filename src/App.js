@@ -64,7 +64,7 @@ function App() {
         });
         const userData = { 
           chat_id: chatId, 
-          isProfileComplete: data.is_profile_complete,
+          isProfileComplete: data.is_verified,
           selectedLanguage: data.selected_language || null // Добавляем проверку языка из ответа сервера
         };
         saveUser(userData);
