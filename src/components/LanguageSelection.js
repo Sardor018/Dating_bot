@@ -1,27 +1,27 @@
-// components/LanguageSelector.js
-import React, {useState } from "react";
-import { useNavigate } from "react-router-dom"; // Хук для навигации
-import '../style/LanguageSelection.css';
-const language = [
-  "O'zbekcha",
-  "English",
-  "Русский"  
-];
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "../style/LanguageSelection.css";
+
+const languages = ["O'zbekcha", "English", "Русский"];
 
 const LanguageSelector = ({ setUserData }) => {
-  const  [selectedLanguage, setSelectedLanguage] = useState("Русский"); // Состояние для хранения выбранного языка
-  const navigate = useNavigate(); // Инициализация навигации
+  const [selectedLanguage, setSelectedLanguage] = useState("Русский");
+  const navigate = useNavigate();
 
-  const handleLanguageSelection = (lang) => {
-    setSelectedLanguage(lang); // Устанавливаем выбранный язык в состояние
-    navigate("/profile"); // Перенаправляем на страницу профиля после выбора языка
+  const handleLanguageSelection = () => {
+    setUserData((prev) => ({
+      ...prev,
+      selectedLanguage: selectedLanguage === "Русский" ? "ru" : 
+                         selectedLanguage === "English" ? "en" : "uz",
+    }));
+    navigate("/profile"); 
   };
 
   return (
     <div className="language-selector">
       <h2>Выберите язык</h2>
       <ul>
-        {language.map((lang) => (
+        {languages.map((lang) => (
           <li
             key={lang}
             className={selectedLanguage === lang ? "selected" : ""}
@@ -31,8 +31,7 @@ const LanguageSelector = ({ setUserData }) => {
           </li>
         ))}
       </ul>
-      <button onClick={() => handleLanguageSelection(selectedLanguage)}>
-        Продолжить</button>
+      <button onClick={handleLanguageSelection}>Продолжить</button>
     </div>
   );
 };
