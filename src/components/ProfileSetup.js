@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Country, State, City } from "country-state-city"; // Импортируем API для работы с данными
+import { Country, City } from "country-state-city"; // Импортируем API для работы с данными
+import axios from "axios";
+import "../style/ProfileSetup.css";
+import Select from 'react-select';
+
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const UserProfileForm = ({ user, setUser }) => {
   const [formData, setFormData] = useState({
