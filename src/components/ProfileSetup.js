@@ -18,7 +18,7 @@ const UserProfileForm = ({ user, setUser }) => {
     gender: user.gender || "",
   });
 
-  const [cities, setCities] = useState([]);
+  сonst [cities, setCities] = useState([]);
   const [isLoadingCities, setIsLoadingCities] = useState(false);
 
   const selectedLanguage = user.selectedLanguage || "ru";
@@ -30,13 +30,17 @@ const UserProfileForm = ({ user, setUser }) => {
   const t = translations[selectedLanguage] || translations["ru"];
   const navigate = useNavigate();
 
-  // Функция для загрузки списка городов по стране
+  // Функция для загрузки списка городов
   const fetchCities = async (countryCode) => {
     setIsLoadingCities(true);
     try {
-      // Получаем города для выбранной страны
+      // Получаем все города для выбранной страны
       const cities = City.getCitiesOfCountry(countryCode);
-      setCities(cities.map(city => ({ value: city.name, label: city.name })));
+
+      // Фильтруем города, чтобы оставить только крупные (например, длина имени города больше 5 символов)
+      const largeCities = cities.filter(city => city.name.length > 5); // Здесь можно заменить на фильтрацию по населению или другому критерию
+
+      setCities(largeCities.map(city => ({ value: city.name, label: city.name })));
     } catch (error) {
       console.error("Ошибка загрузки городов:", error);
     } finally {
