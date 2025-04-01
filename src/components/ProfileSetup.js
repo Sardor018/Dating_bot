@@ -34,6 +34,28 @@ const UserProfileForm = ({ user, setUser }) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
+  
+  useEffect(() => {
+    if (formData.country) {
+      setIsLoadingCities(true);
+      const fetchCities = async () => {
+        try {
+          const response = await axios.get(`https://world-cities-api.herokuapp.com/cities?country=${formData.country}`);
+          setCities(response.data.map(city => ({
+            value: city.name,
+            label: city.name,
+          })));
+        } catch (error) {
+          console.error("Ошибка при получении городов:", error);
+        } finally {
+          setIsLoadingCities(false);
+        }
+      };
+      fetchCities();
+    } else {
+      setCities([]);
+    }
+  }, [formData.country]);
 
   // Отправка данных формы
   const handleSubmit = async () => {
