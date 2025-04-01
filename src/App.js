@@ -52,7 +52,7 @@ function App() {
       //   return;
       // }
 
-      const chatId = await verifyTelegramInitData();
+      const chatId = 2092771486;
       if (!chatId) {
         setLoading(false);
         return;
