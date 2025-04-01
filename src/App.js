@@ -22,6 +22,7 @@ function App() {
   const navigate = useNavigate();
 
   const saveUser = (userData) => {
+    console.log("Сохранение пользователя:", userData);
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
   };
@@ -42,7 +43,7 @@ function App() {
         setLoading(false);
         return;
       }
-  
+
       try {
         const { data } = await axios.get(`${API_BASE_URL}/check_user`, {
           params: { chat_id: chatId }
@@ -72,7 +73,7 @@ function App() {
         setLoading(false);
       }
     };
-  
+
     initializeUser();
   }, [navigate, verifyTelegramInitData]);
 
@@ -116,11 +117,11 @@ function App() {
         <Route
           path="/"
           element={
-            user.isProfileComplete ? (
+            user?.isProfileComplete ? ( // Добавляем проверку на user
               <Candidates setSelectedMatch={setSelectedMatch} currentUserChatId={user.chat_id} />
             ) : (
               <>
-                {console.log("Рендеринг LanguageSelector, isProfileComplete:", user.isProfileComplete)}
+                {console.log("Рендеринг LanguageSelector, isProfileComplete:", user?.isProfileComplete)}
                 <LanguageSelection
                   onSelectLanguage={(lang) => {
                     setSelectedLanguage(lang);
@@ -131,14 +132,14 @@ function App() {
             )
           }
         />
-        {user.isProfileComplete && (
+        {user?.isProfileComplete && ( // Добавляем проверку на user
           <>
             <Route path="/chat" element={<Chat match={selectedMatch} />} />
             <Route path="/profile-view" element={<Profile chatId={user.chat_id} />} />
           </>
         )}
       </Routes>
-      {user.isProfileComplete && (
+      {user?.isProfileComplete && ( // Добавляем проверку на user
         <nav>
           <NavLink to="/" className={({ isActive }) => (isActive ? 'active-link' : '')}>
             <MdFavoriteBorder size={24} />
