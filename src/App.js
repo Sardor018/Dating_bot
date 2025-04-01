@@ -119,12 +119,15 @@ function App() {
             user.isProfileComplete ? (
               <Candidates setSelectedMatch={setSelectedMatch} currentUserChatId={user.chat_id} />
             ) : (
-              <LanguageSelection
-                onSelectLanguage={(lang) => {
-                  setSelectedLanguage(lang);
-                  navigate('/profile');
-                }}
-              />
+              <>
+                {console.log("Рендеринг LanguageSelector, isProfileComplete:", user.isProfileComplete)}
+                <LanguageSelection
+                  onSelectLanguage={(lang) => {
+                    setSelectedLanguage(lang);
+                    navigate('/profile');
+                  }}
+                />
+              </>
             )
           }
         />
