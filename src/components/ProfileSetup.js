@@ -33,8 +33,8 @@ const UserProfileForm = ({ user, setUser }) => {
   const fetchCities = async (countryCode) => {
     setIsLoadingCities(true);
     try {
-      const response = await axios.get(`https://countriesnow.space/api/v0.1/countries/cities`, {
-        params: { country: countryCode }
+      const response = await axios.post("https://countriesnow.space/api/v0.1/countries/cities", {
+        country: countryCode
       });
       setCities(response.data.data.map(city => ({ value: city, label: city })));
     } catch (error) {
