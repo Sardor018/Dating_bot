@@ -1,13 +1,5 @@
 /* App.module.css */
 
-/* Общие стили для всего приложения (аналог body) */
-:root {
-  background-color: #111111; /* Тёмный фон для контраста */
-  color: #ffffff;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-  margin: 0;
-  padding: 0;
-}
 
 /* Контейнер приложения */
 .App {
@@ -93,33 +85,6 @@ nav a:hover {
   display: flex;
   justify-content: center;
   gap: 20px;
-}
-
-/* Общие стили для кнопок (адаптированы из styles.css) */
-button {
-  padding: 12px;
-  background-color: #ef06cc; /* Акцентный цвет для кнопок */
-  color: #ffffff;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-button:hover {
-  background-color: #c305a8; /* Более тёмный акцент при наведении */
-}
-
-/* Специфические кнопки в Candidates (сохранены важные стили) */
-button:first-child {
-  background-color: #ff4444;
-  color: white;
-}
-
-button:last-child {
-  background-color: #00cc00;
-  color: white;
 }
 
 /* Стили для чата (сохранены важные стили) */

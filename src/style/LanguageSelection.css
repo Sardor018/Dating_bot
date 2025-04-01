@@ -1,34 +1,49 @@
-/* LanguageSelection.css */
-.language-selection {
-    text-align: center;
-    background-color: #111111; /* Тёмный фон, как на скриншоте */
-    padding: 20px;
-    border-radius: 10px;
-    margin: 20px;
-  }
+.language-selector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #121212;
+  color: white;
+  font-family: Arial, sans-serif;
+}
 
-  .language-selection select {
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 5px;
-    background-color: #ffffff;
-    color: #000000;
-    border: 1px solid #ef06cc;
-    margin-bottom: 20px;
-    width: 200px;
-    appearance: none;
-  }
-  
-  .language-selection button {
-    padding: 10px 20px;
-    width: 150px;
-    background-color: #ef06cc;
-    color: #ffffff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .language-selection button:hover {
-    background-color: #c305a8;
-  }
+h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  width: 80%;
+  max-width: 300px;
+}
+
+li {
+  padding: 10px;
+  background-color: #222;;
+  margin: 5px 0;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+li.selected {
+  background-color: #ef06cc;
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #ef06cc;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+button:hover {
+  background-color: #b81072;
+}
