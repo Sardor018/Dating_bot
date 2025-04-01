@@ -62,14 +62,28 @@ function App() {
         const { data } = await axios.get(`${API_BASE_URL}/check_user`, {
           params: { chat_id: chatId }
         });
-        const userData = { chat_id: chatId, isProfileComplete: data.is_profile_complete };
+        const userData = { 
+          chat_id: chatId, 
+          isProfileComplete: data.is_profile_complete,
+          selectedLanguage: data.selected_language || null // Добавляем проверку языка из ответа сервера
+        };
         saveUser(userData);
-        if (!data.is_profile_complete) navigate('/language');
+        if (!data.is_profile_complete) {
+          if (!userData.selectedLanguage) {
+            navigate('/language'); // Если язык не выбран, перенаправляем на /language
+          } else {
+            navigate('/profile'); // Если язык выбран, перенаправляем на /profile
+          }
+        }
       } catch (error) {
-        // При ошибке создаём пользователя с незаполненным профилем
-        const userData = { chat_id: chatId, isProfileComplete: false };
+        // При ошибке создаём пользователя с незаполненным профилем и без выбранного языка
+        const userData = { 
+          chat_id: chatId, 
+          isProfileComplete: false,
+          selectedLanguage: null 
+        };
         saveUser(userData);
-        navigate('/language');
+        navigate('/language'); // Перенаправляем на /language, так как язык не выбран
       } finally {
         setLoading(false);
       }
