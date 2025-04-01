@@ -21,13 +21,11 @@ function App() {
   const [selectedLanguage, setSelectedLanguage] = useState('ru');
   const navigate = useNavigate();
 
-  // Вспомогательная функция для сохранения пользователя в localStorage и стейте
   const saveUser = (userData) => {
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
   };
 
-  // Функция проверки данных Telegram, вынесена с использованием useCallback для предотвращения лишних пересозданий
   const verifyTelegramInitData = useCallback(async () => {
     if (!window.Telegram?.WebApp) return null;
     const telegram = window.Telegram.WebApp;
@@ -39,19 +37,6 @@ function App() {
 
   useEffect(() => {
     const initializeUser = async () => {
-      // const savedUser = localStorage.getItem('user');
-      // if (savedUser) {
-      //   const parsedUser = JSON.parse(savedUser);
-      //   if (typeof parsedUser.chat_id !== 'string') {
-      //     localStorage.removeItem('user');
-      //     setLoading(false);
-      //     return;
-      //   }
-      //   setUser(parsedUser);
-      //   setLoading(false);
-      //   return;
-      // }
-
       const chatId = 2092771486;
       if (!chatId) {
         setLoading(false);
@@ -65,25 +50,24 @@ function App() {
         const userData = { 
           chat_id: chatId, 
           isProfileComplete: data.is_verified,
-          selectedLanguage: data.selected_language || null // Добавляем проверку языка из ответа сервера
+          selectedLanguage: data.selected_language || null
         };
         saveUser(userData);
         if (!data.is_profile_complete) {
           if (!userData.selectedLanguage) {
-            navigate('/language'); // Если язык не выбран, перенаправляем на /language
+            navigate('/language');
           } else {
-            navigate('/profile'); // Если язык выбран, перенаправляем на /profile
+            navigate('/profile');
           }
         }
       } catch (error) {
-        // При ошибке создаём пользователя с незаполненным профилем и без выбранного языка
         const userData = { 
           chat_id: chatId, 
           isProfileComplete: false,
           selectedLanguage: null 
         };
         saveUser(userData);
-        navigate('/language'); // Перенаправляем на /language, так как язык не выбран
+        navigate('/language');
       } finally {
         setLoading(false);
       }
@@ -111,15 +95,29 @@ function App() {
     <div>
       <Routes>
         <Route
-          path="/language" element={<LanguageSelection onSelectLanguage={setSelectedLanguage} />}
+          path="/language"
+          element={
+            <LanguageSelection
+              onSelectLanguage={(lang) => {
+                setSelectedLanguage(lang);
+                navigate('/profile');
+              }}
+            />
+          }
         />
         <Route
-          path="/profile" element={<ProfileSetup user={user} setUser={setUser} selectedLanguage={selectedLanguage} />}
+          path="/profile"
+          element={<ProfileSetup user={user} setUser={setUser} selectedLanguage={selectedLanguage} />}
         />
-        <Route path="/photos" element={<PhotoUpload user={user} onComplete={() => setUser({ ...user, isProfileComplete: true })} />}
+        <Route
+          path="/photos"
+          element={<PhotoUpload user={user} onComplete={() => setUser({ ...user, isProfileComplete: true })} />}
         />
-        <Route path="/" element={
-            user.isProfileComplete ? ( <Candidates setSelectedMatch={setSelectedMatch} currentUserChatId={user.chat_id} />
+        <Route
+          path="/"
+          element={
+            user.isProfileComplete ? (
+              <Candidates setSelectedMatch={setSelectedMatch} currentUserChatId={user.chat_id} />
             ) : (
               <LanguageSelection
                 onSelectLanguage={(lang) => {

@@ -4,17 +4,14 @@ import "../style/LanguageSelection.css";
 
 const languages = ["O'zbekcha", "English", "Русский"];
 
-const LanguageSelector = ({ setUserData }) => {
+const LanguageSelector = ({ onSelectLanguage }) => {
   const [selectedLanguage, setSelectedLanguage] = useState("Русский");
   const navigate = useNavigate();
 
   const handleLanguageSelection = () => {
-    setUserData((prev) => ({
-      ...prev,
-      selectedLanguage: selectedLanguage === "Русский" ? "ru" : 
-                         selectedLanguage === "English" ? "en" : "uz",
-    }));
-    navigate("/profile"); 
+    const langCode = selectedLanguage === "Русский" ? "ru" : 
+                     selectedLanguage === "English" ? "en" : "uz";
+    onSelectLanguage(langCode);
   };
 
   return (
@@ -36,7 +33,6 @@ const LanguageSelector = ({ setUserData }) => {
   );
 };
 
-// Оборачиваем в Suspense, чтобы изолировать от i18n
 const LanguageSelectorWithSuspense = (props) => (
   <Suspense fallback={null}>
     <LanguageSelector {...props} />
