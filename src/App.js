@@ -42,7 +42,7 @@ function App() {
         setLoading(false);
         return;
       }
-
+  
       try {
         const { data } = await axios.get(`${API_BASE_URL}/check_user`, {
           params: { chat_id: chatId }
@@ -72,7 +72,7 @@ function App() {
         setLoading(false);
       }
     };
-
+  
     initializeUser();
   }, [navigate, verifyTelegramInitData]);
 
