@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Select from "react-select"; // Импортируем react-select
 import '../style/ProfileSetup.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
@@ -77,6 +78,14 @@ const UserProfileForm = ({ user, setUser }) => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleSelectCountry = (selectedOption) => {
+    setFormData({ ...formData, country: selectedOption ? selectedOption.value : "" });
+  };
+
+  const handleSelectCity = (selectedOption) => {
+    setFormData({ ...formData, city: selectedOption ? selectedOption.value : "" });
+  };
+
   const handleSubmit = async () => {
     try {
       await axios.post(`${API_BASE_URL}/api/user/profile`, new URLSearchParams({
@@ -108,12 +117,13 @@ const UserProfileForm = ({ user, setUser }) => {
         {isLoadingCountries ? (
           <p>Загрузка стран...</p> // Показать иконку или текст, когда страны загружаются
         ) : (
-          <select name="country" value={formData.country} onChange={handleChange}>
-            <option value="">{t.city}</option>
-            {countries.map(country => (
-              <option key={country.value} value={country.value}>{country.label}</option>
-            ))}
-          </select>
+          <Select
+            options={countries}
+            value={countries.find(country => country.value === formData.country)}
+            onChange={handleSelectCountry}
+            isSearchable={true} // Включить поиск
+            placeholder={t.city}
+          />
         )}
       </div>
 
@@ -122,12 +132,14 @@ const UserProfileForm = ({ user, setUser }) => {
         {isLoadingCities ? (
           <p>Загрузка городов...</p> // Показать иконку или текст, когда города загружаются
         ) : (
-          <select name="city" value={formData.city} onChange={handleChange} disabled={!formData.country}>
-            <option value="">{t.city}</option>
-            {cities.map(city => (
-              <option key={city.value} value={city.value}>{city.label}</option>
-            ))}
-          </select>
+          <Select
+            options={cities}
+            value={cities.find(city => city.value === formData.city)}
+            onChange={handleSelectCity}
+            isSearchable={true} // Включить поиск
+            placeholder={t.city}
+            isDisabled={!formData.country} // Заблокировать выбор города, если страна не выбрана
+          />
         )}
       </div>
 
