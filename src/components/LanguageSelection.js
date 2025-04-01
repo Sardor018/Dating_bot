@@ -1,4 +1,4 @@
-import React, { useState, Suspense } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../style/LanguageSelection.css";
 
@@ -14,6 +14,11 @@ const LanguageSelector = ({ onSelectLanguage }) => {
     onSelectLanguage(langCode);
   };
 
+  const handleLanguageClick = (lang) => {
+    console.log("Выбран язык:", lang); // Добавляем лог для отладки
+    setSelectedLanguage(lang);
+  };
+
   return (
     <div className="language-selector">
       <h2>Выберите язык</h2>
@@ -22,7 +27,7 @@ const LanguageSelector = ({ onSelectLanguage }) => {
           <li
             key={lang}
             className={selectedLanguage === lang ? "selected" : ""}
-            onClick={() => setSelectedLanguage(lang)}
+            onClick={() => handleLanguageClick(lang)} // Используем отдельную функцию
           >
             {lang}
           </li>
@@ -33,10 +38,4 @@ const LanguageSelector = ({ onSelectLanguage }) => {
   );
 };
 
-const LanguageSelectorWithSuspense = (props) => (
-  <Suspense fallback={null}>
-    <LanguageSelector {...props} />
-  </Suspense>
-);
-
-export default LanguageSelectorWithSuspense;
+export default LanguageSelector;
